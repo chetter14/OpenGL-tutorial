@@ -1,11 +1,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "triangle.h"
 
 
 GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
-void renderLoop(GLFWwindow*);
+void renderLoop(GLFWwindow*, unsigned int, unsigned int);
 
 int main()
 {
@@ -18,8 +19,15 @@ int main()
 
 	setCallbacks(window);
 
-	renderLoop(window);
+	unsigned int shaderProgram = initShaders();
+	if (shaderProgram == -1) return -1;
+
+	unsigned int VAO = initVAO();
+
+	renderLoop(window, shaderProgram, VAO);
 	
+	cleanUpShadersAndVAO();
+
 	glfwTerminate();
 	return 0;
 }
@@ -59,23 +67,26 @@ void setCallbacks(GLFWwindow* window)
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 }
 
-
 void processInput(GLFWwindow* window);
 
-void renderLoop(GLFWwindow* window)
+void renderLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO)
 {
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
-		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 }
-
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

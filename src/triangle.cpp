@@ -27,6 +27,11 @@ namespace
 	
 	void foo()
 	{
+		// generate VAO and bind it (so that the subsequent operations on VBO and VertexAttribPointer will be attached to the current VAO)
+		unsigned int VAO;
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+
 		// Vertex Buffer Object (stores a bunch of vertices)
 		unsigned int VBO;
 		glGenBuffers(1, &VBO);		// generate a vertices buffer
@@ -37,6 +42,10 @@ namespace
 		// copy user-defined data about vertices into GPU buffer
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		
+		// tell OpenGL how it should interpret the VBO array (good description in a vertex-attribute.png)
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
 		// create a vertex shader object
 		unsigned int vertexShader;
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);

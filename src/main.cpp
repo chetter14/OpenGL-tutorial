@@ -6,7 +6,7 @@
 
 GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
-void renderLoop(GLFWwindow*, unsigned int, unsigned int);
+void renderLoop(GLFWwindow*, unsigned int, unsigned int, unsigned int, unsigned int);
 
 int main()
 {
@@ -19,14 +19,15 @@ int main()
 
 	setCallbacks(window);
 
-	unsigned int shaderProgram = initShaders();
-	if (shaderProgram == -1) return -1;
+	int statusCode = 0;
+	auto [shaderProgram1, shaderProgram2] = initShaders(statusCode);
+	if (statusCode == -1) return -1;
 
-	unsigned int VAO = initVAO();
+	auto [VAO1, VAO2] = initVAOs();	// structured binding
 
-	renderLoop(window, shaderProgram, VAO);
+	renderLoop(window, shaderProgram1, shaderProgram2, VAO1, VAO2);
 	
-	cleanUpShadersAndVAO();
+	cleanUpShadersAndVAOs();
 
 	glfwTerminate();
 	return 0;
@@ -69,19 +70,24 @@ void setCallbacks(GLFWwindow* window)
 
 void processInput(GLFWwindow* window);
 
-void renderLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO)
+void renderLoop(GLFWwindow* window, unsigned int shaderProgram1, unsigned int shaderProgram2, unsigned int VAO1, unsigned int VAO2)
 {
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
+		glUseProgram(shaderProgram1);
+		glBindVertexArray(VAO1);
+		glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw the 1st triangle 
+
+		glUseProgram(shaderProgram2);
+		glBindVertexArray(VAO2);
+		glDrawArrays(GL_TRIANGLES, 0, 3);		// draw the 2nd triangle
+
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

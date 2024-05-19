@@ -1,8 +1,10 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
-unsigned int initShaders();
-unsigned int initVAO();
-void cleanUpShadersAndVAO();
+#include <utility>
+
+std::pair<unsigned int, unsigned int> initShaders(int& statusCode);
+std::pair<unsigned int, unsigned int> initVAOs();
+void cleanUpShadersAndVAOs();
 
 #endif

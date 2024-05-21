@@ -3,11 +3,12 @@
 #include <iostream>
 #include <cmath>
 #include "triangle.h"
+#include "shader.h"
 
 
 GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
-void renderLoop(GLFWwindow*, unsigned int, unsigned int);
+void renderLoop(GLFWwindow*, unsigned int);
 
 int main()
 {
@@ -20,14 +21,11 @@ int main()
 
 	setCallbacks(window);
 
-	unsigned int shaderProgram = initShaders();
-	if (shaderProgram == -1) return -1;
-
 	unsigned int VAO = initVAO();
 
-	renderLoop(window, shaderProgram, VAO);
+	renderLoop(window, VAO);
 	
-	cleanUpShadersAndVAO();
+	cleanUpVAO();
 
 	glfwTerminate();
 	return 0;
@@ -70,10 +68,10 @@ void setCallbacks(GLFWwindow* window)
 
 void processInput(GLFWwindow* window);
 
-void renderLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO)
+void renderLoop(GLFWwindow* window, unsigned int VAO)
 {
-	
-	
+	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -81,13 +79,7 @@ void renderLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
-
-		// gradual change of triangle color
-		float time = glfwGetTime();
-		float greenValue = 0.5f + (sin(time) / 2.0f);
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		myShader.use();
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle

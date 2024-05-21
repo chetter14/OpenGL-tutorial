@@ -14,9 +14,10 @@ namespace
 
 	const char* fragmentShaderSource = "#version 330 core\n"
 		"out vec4 FragmentColor;\n"
+		"uniform vec4 ourColor;\n"
 		"void main()\n"
 		"{\n"
-		"FragmentColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+		"FragmentColor = ourColor;\n"
 		"}\0";
 
 	float vertices[] = {
@@ -110,24 +111,24 @@ unsigned int initVAO()
 	glBindVertexArray(VAO);
 
 	// ----- Element Buffer Object (EBO) (to draw a rectangle)
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(rectangleIndices), rectangleIndices, GL_STATIC_DRAW);
+	//glGenBuffers(1, &EBO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(rectangleIndices), rectangleIndices, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices), rectangleVertices, GL_STATIC_DRAW);
-
-	//// ----- Vertex Buffer Object (VBO) (to draw a triangle)
-
-	//// Vertex Buffer Object (stores a bunch of vertices)
-	//glGenBuffers(1, &VBO);		// generate a vertices buffer
-
-	//// bind VBO to array buffer (array buffer - one type of many GPU buffers)
+	//glGenBuffers(1, &VBO);
 	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(rectangleVertices), rectangleVertices, GL_STATIC_DRAW);
 
-	//// copy user-defined data about vertices into GPU buffer
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// ----- Vertex Buffer Object (VBO) (to draw a triangle)
+
+	// Vertex Buffer Object (stores a bunch of vertices)
+	glGenBuffers(1, &VBO);		// generate a vertices buffer
+
+	// bind VBO to array buffer (array buffer - one type of many GPU buffers)
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	// copy user-defined data about vertices into GPU buffer
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// tell OpenGL how it should interpret the VBO array (good description in a vertex-attribute.png)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);

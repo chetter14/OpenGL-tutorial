@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <cmath>
 #include "triangle.h"
 
 
@@ -71,6 +72,8 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO)
 {
+	
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -79,9 +82,16 @@ void renderLoop(GLFWwindow* window, unsigned int shaderProgram, unsigned int VAO
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
+
+		// gradual change of triangle color
+		float time = glfwGetTime();
+		float greenValue = 0.5f + (sin(time) / 2.0f);
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
+		glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

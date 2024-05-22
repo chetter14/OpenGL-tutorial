@@ -72,14 +72,15 @@ void renderLoop(GLFWwindow* window, unsigned int VAO)
 {
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
 
+	myShader.use();
+	myShader.setFloat("offset", 0.2);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		myShader.use();
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle

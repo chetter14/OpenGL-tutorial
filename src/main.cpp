@@ -73,7 +73,6 @@ void renderLoop(GLFWwindow* window, unsigned int VAO)
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
 
 	myShader.use();
-	myShader.setFloat("offset", 0.2);
 
 	while (!glfwWindowShouldClose(window))
 	{

@@ -23,6 +23,12 @@ namespace
 		"FragmentColor = vec4(ourColor, 1.0f);\n"
 		"}\0";
 
+	float texCoords[] = {
+		0.0f, 0.0f,		// bottom-left corner 
+		1.0f, 0.0f,		// bottom-right corner
+		0.5f, 1.0f		// top corner
+	};
+
 	float vertices[] = {
 		// coordinates		// colors
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -77,6 +83,14 @@ unsigned int initVAO()
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// texture wrapping (what to do if texture coordinates get out of (0,0)-(1,1) span)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);	// X coordinate
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);	// Y coordinate
+
+	// set options for scaling down and upwards (called texture filtering)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	return VAO;
 }

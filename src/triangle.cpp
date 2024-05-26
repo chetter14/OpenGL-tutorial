@@ -3,15 +3,16 @@
 #include "triangle.h"
 #include "stb_image.h"
 #include <iostream>
+#include <utility>
 
 namespace
 {
 	float vertices[] = {
 		// coords (NDC)		// colors			// texture coordinates
-		0.5f, 0.5f, 0.0f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,	// top right
-		0.5f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,	// bottom left
-		-0.5f, 0.5f, 0.0f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f	// top left
+		0.5f, 0.0f, 0.0f,	1.0f, 0.0f, 0.0f,	1.0f, 1.0f,	// top right
+		0.0f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 0.0f, // bottom right
+		-0.5f, 0.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,	// bottom left
+		0.0f, 0.5f, 0.0f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f	// top left
 	};
 
 	//float rectangleVertices[] = {
@@ -27,7 +28,7 @@ namespace
 	};
 
 	unsigned int VAO, VBO, EBO;
-	unsigned int texture;
+	unsigned int textures[2];
 }
 
 unsigned int initVAO()
@@ -69,11 +70,11 @@ unsigned int initVAO()
 	return VAO;
 }
 
-unsigned int initTexture()
+std::pair<unsigned int, unsigned int> initTextures()
 {
 	// create a texture object
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glGenTextures(2, textures);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
 
 	// texture wrapping (what to do if texture coordinates get out of (0,0)-(1,1) span)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);	// X coordinate
@@ -86,23 +87,46 @@ unsigned int initTexture()
 	// load a container.jpg texture
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
-		std::cout << "Failed to load a texture data!\n";
+		std::cout << "Failed to load a texture1 data!\n";
 
 	stbi_image_free(data);
 
-	return texture;
+	// do the same for the 2nd texture
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+
+	// texture wrapping (what to do if texture coordinates get out of (0,0)-(1,1) span)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);	// X coordinate
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);	// Y coordinate
+
+	// set options for scaling down and upwards (called texture filtering)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	stbi_set_flip_vertically_on_load(true);
+	// load a awesomeface.png texture
+	data = stbi_load("awesomeface.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+		std::cout << "Failed to load a texture2 data!\n";
+
+	stbi_image_free(data);
+
+	return { textures[0], textures[1] };
 }
 
 void cleanUp()
 {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteTextures(1, &texture);
+	glDeleteTextures(1, textures);
 }

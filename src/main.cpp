@@ -4,11 +4,12 @@
 #include <cmath>
 #include "triangle.h"
 #include "shader.h"
+#include <utility>
 
 
 GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
-void renderLoop(GLFWwindow*, unsigned int, unsigned int);
+void renderLoop(GLFWwindow*, unsigned int, std::pair<unsigned int, unsigned int> textures);
 
 int main()
 {
@@ -22,9 +23,9 @@ int main()
 	setCallbacks(window);
 
 	unsigned int VAO = initVAO();
-	unsigned int texture = initTexture();
+	auto textures = initTextures();
 
-	renderLoop(window, VAO, texture);
+	renderLoop(window, VAO, textures);
 	
 	cleanUp();
 
@@ -69,9 +70,12 @@ void setCallbacks(GLFWwindow* window)
 
 void processInput(GLFWwindow* window);
 
-void renderLoop(GLFWwindow* window, unsigned int VAO, unsigned int texture)
+void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
+	myShader.use();
+	myShader.setInt("texture1", 0);		// set texture1 uniform variable to GL_TEXTURE0 
+	myShader.setInt("texture2", 1);		// set texture2 uniform variable to GL_TEXTURE1 
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -80,10 +84,11 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, unsigned int texture)
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		myShader.use();
-
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, textures.first);		// bind textures.first to GL_TEXTURE0
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, textures.second);		// bind textures.second to GL_TEXTURE1
+
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle

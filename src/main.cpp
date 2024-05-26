@@ -8,7 +8,7 @@
 
 GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
-void renderLoop(GLFWwindow*, unsigned int);
+void renderLoop(GLFWwindow*, unsigned int, unsigned int);
 
 int main()
 {
@@ -22,10 +22,11 @@ int main()
 	setCallbacks(window);
 
 	unsigned int VAO = initVAO();
+	unsigned int texture = initTexture();
 
-	renderLoop(window, VAO);
+	renderLoop(window, VAO, texture);
 	
-	cleanUpVAO();
+	cleanUp();
 
 	glfwTerminate();
 	return 0;
@@ -68,7 +69,7 @@ void setCallbacks(GLFWwindow* window)
 
 void processInput(GLFWwindow* window);
 
-void renderLoop(GLFWwindow* window, unsigned int VAO)
+void renderLoop(GLFWwindow* window, unsigned int VAO, unsigned int texture)
 {
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
 
@@ -81,9 +82,11 @@ void renderLoop(GLFWwindow* window, unsigned int VAO)
 
 		myShader.use();
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
+		//glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

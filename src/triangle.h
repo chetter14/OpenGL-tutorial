@@ -2,6 +2,7 @@
 #define TRIANGLE_H
 
 unsigned int initVAO();
-void cleanUpVAO();
+unsigned int initTexture();
+void cleanUp();
 
 #endif

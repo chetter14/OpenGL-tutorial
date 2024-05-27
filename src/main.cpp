@@ -2,14 +2,22 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath>
+#include <utility>
+#include <memory>
 #include "triangle.h"
 #include "shader.h"
-#include <utility>
 
 
 GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
 void renderLoop(GLFWwindow*, unsigned int, std::pair<unsigned int, unsigned int> textures);
+
+namespace
+{
+	std::unique_ptr<Shader> myShader;
+	float coef = 0.0;
+}
+
 
 int main()
 {
@@ -24,6 +32,7 @@ int main()
 
 	unsigned int VAO = initVAO();
 	auto textures = initTextures();
+	myShader = std::make_unique<Shader>("vertex-shader.vs", "fragment-shader.fs");
 
 	renderLoop(window, VAO, textures);
 	
@@ -72,10 +81,9 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
-	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
-	myShader.use();
-	myShader.setInt("texture1", 0);		// set texture1 uniform variable to GL_TEXTURE0 
-	myShader.setInt("texture2", 1);		// set texture2 uniform variable to GL_TEXTURE1 
+	myShader->use();
+	myShader->setInt("texture1", 0);		// set texture1 uniform variable to GL_TEXTURE0 
+	myShader->setInt("texture2", 1);		// set texture2 uniform variable to GL_TEXTURE1 
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -83,6 +91,8 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		myShader->setFloat("coef", coef);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textures.first);		// bind textures.first to GL_TEXTURE0
@@ -107,4 +117,15 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		if (coef < 1.0f) coef += 0.0001f;	
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		if (coef > 0.0f) coef -= 0.0001f;
+	}
+		
 }

@@ -7,8 +7,10 @@ in vec2 ourTexCoord;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 
+uniform float coef;
+
 void main()
 {
 	
-	FragmentColor = mix(texture(texture1, ourTexCoord), texture(texture2, ourTexCoord), 0.2);
+	FragmentColor = mix(texture(texture1, ourTexCoord), texture(texture2, ourTexCoord), coef);
 }

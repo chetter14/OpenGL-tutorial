@@ -94,9 +94,9 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 
 		myShader->setFloat("coef", coef);
 
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0);						// activate the 0 texture unit
 		glBindTexture(GL_TEXTURE_2D, textures.first);		// bind textures.first to GL_TEXTURE0
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE1);						// activate the 1 texture unit
 		glBindTexture(GL_TEXTURE_2D, textures.second);		// bind textures.second to GL_TEXTURE1
 
 		glBindVertexArray(VAO);

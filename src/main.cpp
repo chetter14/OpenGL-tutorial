@@ -89,15 +89,23 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 	myShader.setInt("texture1", 0);		// set texture1 uniform variable to GL_TEXTURE0 
 	myShader.setInt("texture2", 1);		// set texture2 uniform variable to GL_TEXTURE1 
 
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
 		
-		// put an object into 3d world
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-		myShader.setTransformMatrix("model", model);
 		myShader.setTransformMatrix("view", view);
 		myShader.setTransformMatrix("projection", projection);
 
@@ -110,9 +118,17 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 		glBindTexture(GL_TEXTURE_2D, textures.second);		// bind textures.second to GL_TEXTURE1
 
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);		// to draw a cube
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
-
+		for (int i = 0; i < 10; ++i)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 50.0 * i;
+			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			
+			myShader.setTransformMatrix("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

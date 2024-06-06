@@ -82,12 +82,16 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 
 	while (!glfwWindowShouldClose(window))
 	{
-		processInput(window);
+		glm::mat4 trans1 = glm::mat4(1.0f);			// identity matrix
+		trans1 = glm::translate(trans1, glm::vec3(0.5f, -0.5f, 0.0f));		// move to 0.5 right and 0.5 down
+		trans1 = glm::rotate(trans1, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));	// rotate around Z-axis
 
-		glm::mat4 trans = glm::mat4(1.0f);			// identity matrix
-		trans = glm::translate(trans, glm::vec3(0.5, -0.5f, 0.0f));		// move to 0.5 right and 0.5 down
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));	// rotate by X degrees around the Z-axis
-		myShader.setTransformMatrix("transform", trans);
+		glm::mat4 trans2 = glm::mat4(1.0f);
+		trans2 = glm::translate(trans2, glm::vec3(-0.5f, 0.5f, 0.0f));
+		float sinValue = sin((float)glfwGetTime());
+		trans2 = glm::scale(trans2, glm::vec3(sinValue, sinValue, 1.0f));
+
+		processInput(window);
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -99,7 +103,12 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
+
+		myShader.setTransformMatrix("transform", trans1);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
+
+		myShader.setTransformMatrix("transform", trans2);		// translate to top left 
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw another rectangle
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -75,6 +75,18 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
+	// put an object into 3d world
+	glm::mat4 model = glm::mat4(1.0f);	
+	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	// move camera backwards to see object clear (or move all the stuff forward)
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+	// matrix for perspective projection (for objects further in distance to be smaller like in real life)
+	glm::mat4 projection;
+	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
 	myShader.use();
 	myShader.setInt("texture1", 0);		// set texture1 uniform variable to GL_TEXTURE0 
@@ -84,10 +96,9 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 	{
 		processInput(window);
 
-		glm::mat4 trans = glm::mat4(1.0f);			// identity matrix
-		trans = glm::translate(trans, glm::vec3(0.5, -0.5f, 0.0f));		// move to 0.5 right and 0.5 down
-		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));	// rotate by X degrees around the Z-axis
-		myShader.setTransformMatrix("transform", trans);
+		myShader.setTransformMatrix("model", model);
+		myShader.setTransformMatrix("view", view);
+		myShader.setTransformMatrix("projection", projection);
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);

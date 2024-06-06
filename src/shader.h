@@ -6,6 +6,9 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 
 class Shader
@@ -21,6 +24,7 @@ public:
 	void setBool(const std::string& name, bool value) const;
 	void setInt(const std::string& name, int value) const;
 	void setFloat(const std::string& name, float value) const;
+	void Shader::setTransformMatrix(const std::string& name, glm::mat4& trans) const;
 };
 
 Shader::Shader(const char* vertexShaderPath, const char* fragmentShaderPath)
@@ -144,6 +148,11 @@ void Shader::setInt(const std::string& name, int value) const
 void Shader::setFloat(const std::string& name, float value) const
 {
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::setTransformMatrix(const std::string& name, glm::mat4& trans) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(trans));
 }
 
 #endif // SHADER_H

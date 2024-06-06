@@ -5,6 +5,9 @@
 #include "triangle.h"
 #include "shader.h"
 #include <utility>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 
 GLFWwindow* windowInit();
@@ -72,10 +75,16 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
+	glm::mat4 trans = glm::mat4(1.0f);			// identity matrix
+	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));	// rotate by 90 degrees around the Z-axis
+	trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));		// scale by 0.5
+
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
 	myShader.use();
 	myShader.setInt("texture1", 0);		// set texture1 uniform variable to GL_TEXTURE0 
 	myShader.setInt("texture2", 1);		// set texture2 uniform variable to GL_TEXTURE1 
+
+	myShader.setTransformMatrix("transform", trans);
 
 	while (!glfwWindowShouldClose(window))
 	{

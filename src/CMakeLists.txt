@@ -4,7 +4,7 @@ add_executable(Test-example main.cpp triangle.cpp stb_image_impl.cpp "${OpenGL-t
 
 add_dependencies(Test-example glfw)
 
-target_include_directories(Test-example PRIVATE "${GLFW_SOURCE_DIR}/include" "${OpenGL-tutorial_SOURCE_DIR}/glad/include" "${OpenGL-tutorial_SOURCE_DIR}")
+target_include_directories(Test-example PRIVATE "${GLFW_SOURCE_DIR}/include" "${OpenGL-tutorial_SOURCE_DIR}/glad/include" "${OpenGL-tutorial_SOURCE_DIR}/glm-1.0.1")
 
 target_link_libraries(Test-example PRIVATE "${OpenGL-tutorial_SOURCE_DIR}/lib/OpenGL32.Lib")
 

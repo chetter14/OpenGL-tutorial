@@ -59,6 +59,7 @@ GLFWwindow* windowInit()
 	}
 
 	glViewport(0, 0, 800, 600);
+	glEnable(GL_DEPTH_TEST);
 
 	return window;
 }
@@ -75,10 +76,6 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
-	// put an object into 3d world
-	glm::mat4 model = glm::mat4(1.0f);	
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
 	// move camera backwards to see object clear (or move all the stuff forward)
 	glm::mat4 view = glm::mat4(1.0f);
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -95,13 +92,17 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+		
+		// put an object into 3d world
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 		myShader.setTransformMatrix("model", model);
 		myShader.setTransformMatrix("view", view);
 		myShader.setTransformMatrix("projection", projection);
 
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textures.first);		// bind textures.first to GL_TEXTURE0
@@ -109,8 +110,8 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 		glBindTexture(GL_TEXTURE_2D, textures.second);		// bind textures.second to GL_TEXTURE1
 
 		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);		// to draw a triangle
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
+		glDrawArrays(GL_TRIANGLES, 0, 36);		// to draw a cube
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);	// to draw a rectangle
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

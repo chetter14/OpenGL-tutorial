@@ -86,8 +86,6 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
-	// matrix for perspective projection (for objects further in distance to be smaller like in real life)
-
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
 	myShader.use();
 	myShader.setInt("texture1", 0);		// set texture1 uniform variable to GL_TEXTURE0 

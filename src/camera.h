@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include <iostream>
 
 
 class Camera
@@ -70,6 +71,8 @@ public:
 			pos -= right * speed;
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 			pos += right * speed;
+
+		pos.y = 0.0f;
 	}
 
 	glm::mat4 getLookAt() { return glm::lookAt(pos, pos + front, up); }
@@ -79,7 +82,7 @@ public:
 private:
 
 	const float mouseSensitivity = 0.1f;
-	const float movementSpeed = 2.5f;
+	const float movementSpeed = 3.0f;
 
 	const glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 

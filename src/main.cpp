@@ -14,6 +14,9 @@ GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
 void renderLoop(GLFWwindow*, unsigned int, std::pair<unsigned int, unsigned int> textures);
 
+void mouse_callback(GLFWwindow*, double xpos, double ypos);
+void scroll_callback(GLFWwindow*, double xoffset, double yoffset);
+
 namespace
 {
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -22,6 +25,15 @@ namespace
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
+
+	float lastX = 400, lastY = 300;
+
+	float yaw = -90.0f;
+	float pitch = 0.0f;
+
+	bool firstMouseInput = true;
+
+	float fov = 45.0f;
 }
 
 int main()
@@ -80,6 +92,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void setCallbacks(GLFWwindow* window)
 {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 }
 
 void processInput(GLFWwindow* window);
@@ -87,8 +101,6 @@ void processInput(GLFWwindow* window);
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
 	// matrix for perspective projection (for objects further in distance to be smaller like in real life)
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
 	Shader myShader{ "vertex-shader.vs", "fragment-shader.fs" };
 	myShader.use();
@@ -108,13 +120,15 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	while (!glfwWindowShouldClose(window))
 	{
-		processInput(window);
-
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+
+		processInput(window);
 		
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -124,7 +138,11 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textures.second);		// bind textures.second to GL_TEXTURE1
 
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
 
 		myShader.setTransformMatrix("view", view);
 		myShader.setTransformMatrix("projection", projection);
@@ -151,12 +169,54 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void mouse_callback(GLFWwindow*, double xpos, double ypos)
+{
+	if (firstMouseInput)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouseInput = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+
+	constexpr float sensitivity = 0.1f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	yaw += xoffset;
+	pitch += yoffset;
+
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	else if (pitch < -89.0f)
+		pitch = -89.0f;
+
+	glm::vec3 direction;
+	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));	// why multiply by cos(pitch) ?
+	direction.y = sin(glm::radians(pitch));
+	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow*, double xoffset, double yoffset)
+{
+	fov -= (float)yoffset;
+	if (fov < 1.0f)
+		fov = 1.0f;
+	else if (fov > 45.0f)
+		fov = 45.0f;
+}
+
 void processInput(GLFWwindow* window)
 {
 	float cameraSpeed = 2.5f * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPos += cameraSpeed * cameraFront;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

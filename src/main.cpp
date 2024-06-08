@@ -14,7 +14,15 @@ GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
 void renderLoop(GLFWwindow*, unsigned int, std::pair<unsigned int, unsigned int> textures);
 
+namespace
+{
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
+}
 
 int main()
 {
@@ -78,12 +86,6 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
-	// Form a matrix that transforms all the world coordinates to the specified camera space
-	glm::mat4 view;
-	view = glm::lookAt(	glm::vec3(0.0f, 0.0f, 3.0f),			// camera position
-						glm::vec3(0.0f, 0.0f, 0.0f),			// where camera looks at
-						glm::vec3(0.0f, 1.0f, 0.0f));			// "up"-axis of camera
-
 	// matrix for perspective projection (for objects further in distance to be smaller like in real life)
 	glm::mat4 projection;
 	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -109,6 +111,10 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 		
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -118,12 +124,7 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textures.second);		// bind textures.second to GL_TEXTURE1
 
-		const float radius = 20.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camZ = cos(glfwGetTime()) * radius;
-		view = glm::lookAt(	glm::vec3(camX, -5.0f, camZ),
-							glm::vec3(0.0f, 0.0f, 0.0f),
-							glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		myShader.setTransformMatrix("view", view);
 		myShader.setTransformMatrix("projection", projection);
@@ -152,6 +153,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
+	float cameraSpeed = 2.5f * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }

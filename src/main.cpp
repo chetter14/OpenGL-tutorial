@@ -14,6 +14,8 @@ GLFWwindow* windowInit();
 void setCallbacks(GLFWwindow*);
 void renderLoop(GLFWwindow*, unsigned int, std::pair<unsigned int, unsigned int> textures);
 
+
+
 int main()
 {
 	GLFWwindow* window = windowInit();
@@ -76,9 +78,11 @@ void processInput(GLFWwindow* window);
 
 void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, unsigned int> textures)
 {
-	// move camera backwards to see object clear (or move all the stuff forward)
-	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	// Form a matrix that transforms all the world coordinates to the specified camera space
+	glm::mat4 view;
+	view = glm::lookAt(	glm::vec3(0.0f, 0.0f, 3.0f),			// camera position
+						glm::vec3(0.0f, 0.0f, 0.0f),			// where camera looks at
+						glm::vec3(0.0f, 1.0f, 0.0f));			// "up"-axis of camera
 
 	// matrix for perspective projection (for objects further in distance to be smaller like in real life)
 	glm::mat4 projection;
@@ -106,9 +110,6 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 	{
 		processInput(window);
 		
-		myShader.setTransformMatrix("view", view);
-		myShader.setTransformMatrix("projection", projection);
-
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -116,6 +117,16 @@ void renderLoop(GLFWwindow* window, unsigned int VAO, std::pair<unsigned int, un
 		glBindTexture(GL_TEXTURE_2D, textures.first);		// bind textures.first to GL_TEXTURE0
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, textures.second);		// bind textures.second to GL_TEXTURE1
+
+		const float radius = 20.0f;
+		float camX = sin(glfwGetTime()) * radius;
+		float camZ = cos(glfwGetTime()) * radius;
+		view = glm::lookAt(	glm::vec3(camX, -5.0f, camZ),
+							glm::vec3(0.0f, 0.0f, 0.0f),
+							glm::vec3(0.0f, 1.0f, 0.0f));
+
+		myShader.setTransformMatrix("view", view);
+		myShader.setTransformMatrix("projection", projection);
 
 		glBindVertexArray(VAO);
 		for (int i = 0; i < 10; ++i)
